@@ -7,6 +7,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
+	"mhygacha/config"
 	"mhygacha/project"
 	"mhygacha/sr"
 	"net/http"
@@ -24,6 +25,8 @@ func main() {
 	fmt.Println("  FF      OO   OO  RR   RR   EE       S    SS    TT   ")
 	fmt.Println("  FF       OOOO0   RR    RR  EEEEEEE  SSSSSS     TT   ")
 	fmt.Println("-----------------------------------------------------------")
+	//初始化配置文件
+	config.ConfigInit(staticFiles)
 	//初始化数据库
 	project.SQLiteInit()
 
@@ -32,15 +35,13 @@ func main() {
 	router := gin.Default()
 
 	// 允许所有的跨域请求
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"https://webstatic.mihoyo.com"} // 指定允许的域名
-	config.AllowCredentials = true
+	httpConfig := cors.DefaultConfig()
+	httpConfig.AllowOrigins = []string{"https://webstatic.mihoyo.com"} // 指定允许的域名
+	httpConfig.AllowCredentials = true
 
-	router.Use(cors.New(config))
-
+	router.Use(cors.New(httpConfig))
 	//sr抽卡记录
 	router.GET("/common/gacha_record/api/getGachaLog", sr.GaChaLog)
-
 	//http服务器
 	go func() {
 		log.Println("开始监听80端口")
@@ -59,8 +60,6 @@ func main() {
 	}
 	go func() {
 		log.Println("开始监听443端口")
-
-		// 使用你的tls.Config对象来启动服务器
 		server := &http.Server{
 			Addr:      ":443",
 			Handler:   router,

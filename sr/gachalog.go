@@ -2,8 +2,10 @@ package sr
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"mhygacha/config"
 	"mhygacha/global"
 	"net/http"
 	"strconv"
@@ -30,19 +32,24 @@ func GaChaLog(c *gin.Context) {
 	} else {
 		EndIDint, _ = strconv.Atoi(EndID)
 	}
-	if EndIDint > 0 {
-		rows, err = global.SQLDB.Query(`SELECT Uid, GachaId, GachaType, ItemId, Count, Time, Name, Lang, ItemType, RankType, Id 
-                    FROM srgachalog 
-                    WHERE Authkey = ? AND Id < ? AND GaChaType = ?
-                    ORDER BY Id DESC 
-                    LIMIT ?`, Authkey, EndIDint, GaChaType, Size)
-	} else {
-		rows, err = global.SQLDB.Query(`SELECT Uid, GachaId, GachaType, ItemId, Count, Time, Name, Lang, ItemType, RankType, Id 
-                                  FROM srgachalog 
-                                  WHERE Authkey = ? AND GaChaType = ?
-                                  ORDER BY Id DESC 
-                                  LIMIT ?`, Authkey, GaChaType, Size)
+	var authkeyCondition, idCondition string
+	var args []interface{}
+
+	if config.Config.OpenAuthKey {
+		authkeyCondition = "Authkey = ? AND "
+		args = append(args, Authkey)
 	}
+	if EndIDint > 0 {
+		idCondition = "Id < ? AND "
+		args = append(args, EndIDint)
+	}
+	args = append(args, GaChaType, Size)
+	rows, err = global.SQLDB.Query(fmt.Sprintf(`SELECT Uid, GachaId, GachaType, ItemId, Count, Time, Name, Lang, ItemType, RankType, Id 
+         FROM srgachalog 
+         WHERE %s GaChaType = ? 
+         ORDER BY Id DESC 
+         LIMIT ?`, authkeyCondition+idCondition), args...)
+
 	if err != nil {
 		log.Printf("查询数据出错: %v", err)
 		return
