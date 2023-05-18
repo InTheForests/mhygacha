@@ -6,14 +6,14 @@ import (
 	"mhygacha/global"
 	"os"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func SQLiteInit() {
 	dbFile := "./data.db"
 	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
 		log.Println("未检测到数据库文件，开始创建数据库......")
-		global.SQLDB, err = sql.Open("sqlite3", dbFile)
+		global.SQLDB, err = sql.Open("sqlite", dbFile)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -31,7 +31,7 @@ func SQLiteInit() {
 			Lang TEXT,
 			ItemType TEXT,
 			RankType TEXT,
-			Id TEXT,
+			Id INTEGER,
 			Authkey TEXT
 		);
 		`)
@@ -42,7 +42,7 @@ func SQLiteInit() {
 		log.Println("数据库创建完成!")
 	} else {
 		log.Println("数据库文件存在，开始调用数据库.")
-		global.SQLDB, err = sql.Open("sqlite3", dbFile)
+		global.SQLDB, err = sql.Open("sqlite", dbFile)
 		if err != nil {
 			log.Fatal(err)
 		}
