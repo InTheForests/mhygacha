@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"embed"
 	"fmt"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"mhygacha/config"
@@ -35,13 +34,24 @@ func main() {
 	router := gin.Default()
 
 	// 允许所有的跨域请求
-	httpConfig := cors.DefaultConfig()
-	httpConfig.AllowOrigins = []string{"https://webstatic.mihoyo.com"} // 指定允许的域名
-	httpConfig.AllowCredentials = true
-
-	router.Use(cors.New(httpConfig))
+	/*
+		httpConfig := cors.DefaultConfig()
+		httpConfig.AllowOrigins = []string{
+			"https://webstatic.mihoyo.com",
+			"https://api-takumi.mihoyo.com",
+			"https://127.0.0.1"
+		} // 指定允许的域名
+		httpConfig.AllowMethods = []string{"GET", "POST", "PUT"}
+		httpConfig.AllowHeaders = []string{"Content-Type"}
+		httpConfig.AllowCredentials = true
+		router.Use(cors.New(httpConfig))
+	*/
+	router.Use(project.PassCORS())
 	//sr抽卡记录
 	router.GET("/common/gacha_record/api/getGachaLog", sr.GaChaLog)
+	//sr添加记录api
+	router.POST("/gm/sr/GaChaLogAdd", sr.GaChaLogAdd)
+
 	//http服务器
 	go func() {
 		log.Println("开始监听80端口")
