@@ -10,10 +10,10 @@ func PassCORS() gin.HandlerFunc {
 			"https://api-takumi.mihoyo.com",
 			"http://127.0.0.1",
 			"https://127.0.0.1",
-			"*",
 		}
 
 		requestOrigin := c.Request.Header.Get("Origin")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		for _, allowedOrigin := range allowedOrigins {
 			if allowedOrigin == requestOrigin {
 				c.Writer.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
